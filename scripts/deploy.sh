@@ -39,6 +39,10 @@ kubectl apply -f k8s/08-prometheus.yaml
 kubectl apply -f k8s/09-grafana.yaml
 
 echo ""
+echo "Deploying cert-manager resources..."
+kubectl apply -f k8s/10-cert-manager.yaml
+
+echo ""
 echo "========================================="
 echo "Deployment Complete!"
 echo "========================================="

@@ -72,7 +72,7 @@ kubectl wait --namespace ingress-nginx \
   --selector=app.kubernetes.io/component=controller \
   --timeout=120s || echo "NGINX may still be starting"
 
-echo "[6/7] Installing Metrics Server..."
+echo "[6/8] Installing Metrics Server..."
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 echo "Waiting for Metrics Server to be ready..."
 kubectl wait --namespace kube-system \
@@ -83,8 +83,15 @@ kubectl wait --namespace kube-system \
 kubectl patch deployment metrics-server -n kube-system --type='json' \
   -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
 
+echo "[7/8] Installing cert-manager..."
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.3/cert-manager.yaml
+echo "Waiting for cert-manager to be ready..."
+kubectl wait --namespace cert-manager \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/instance=cert-manager \
+  --timeout=120s || echo "cert-manager may still be starting"
 
-echo "[7/7] Setting up namespaces with labels..."
+echo "[8/8] Setting up namespaces with labels..."
 kubectl get namespaces -o name | while read ns; do
   ns_name="${ns##*/}"
   if [[ "$ns_name" == prod-* ]]; then

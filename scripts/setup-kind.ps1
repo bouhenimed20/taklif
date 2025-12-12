@@ -74,13 +74,19 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/cont
 Write-Host "Waiting for NGINX to be ready..." -ForegroundColor Yellow
 kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s
 
-Write-Host "[6/7] Installing Metrics Server..." -ForegroundColor Yellow
+Write-Host "[6/8] Installing Metrics Server..." -ForegroundColor Yellow
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 Write-Host "Waiting for Metrics Server to be ready..." -ForegroundColor Yellow
 Start-Sleep -Seconds 10
 kubectl patch deployment metrics-server -n kube-system --type='json' -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
 
-Write-Host "[7/7] Setting up namespaces with labels..." -ForegroundColor Yellow
+Write-Host "[7/8] Installing cert-manager..." -ForegroundColor Yellow
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.3/cert-manager.yaml
+Write-Host "Waiting for cert-manager to be ready..." -ForegroundColor Yellow
+Start-Sleep -Seconds 30
+kubectl wait --namespace cert-manager --for=condition=ready pod --selector=app.kubernetes.io/instance=cert-manager --timeout=120s
+
+Write-Host "[8/8] Setting up namespaces with labels..." -ForegroundColor Yellow
 kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/calico.yaml
 
 Write-Host ""
