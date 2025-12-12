@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: main-api
+  namespace: prod-api
+  labels:
+    app: main-api
+    version: v1
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: main-api
+  template:
+    metadata:
+      labels:
+        app: main-api
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: main-api
+          image: localhost:5001/main-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "3000"
+
+            # ✅ aligned with updated server.js + secrets.yaml
+            - name: AUTH_URL
+              valueFrom:
+                secretKeyRef:
+                  name: api-secrets
+                  key: AUTH_URL
+            - name: IMAGE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: api-secrets
+                  key: IMAGE_URL
+
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 2
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-api
+  namespace: prod-api
+  labels:
+    app: main-api
+spec:
+  type: ClusterIP
+  selector:
+    app: main-api
+  ports:
+    - name: http
+      port: 80          # ✅ standard service port
+      targetPort: 3000  # app port
+      protocol: TCP
