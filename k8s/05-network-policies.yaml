@@ -1,250 +1,191 @@
+# 1. Deny all Ingress traffic by default in 'prod-auth'
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: default-deny-all
+  name: default-deny-ingress
   namespace: prod-auth
 spec:
   podSelector: {}
   policyTypes:
-  - Ingress
-  - Egress
-
+    - Ingress
 ---
+# 2. Allow specific Ingress traffic to 'auth-service' in 'prod-auth'
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-from-api
-  namespace: prod-auth
-spec:
-  podSelector:
-    matchLabels:
-      app: auth-service
-  policyTypes:
-  - Ingress
-  ingress:
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: prod-api
-      podSelector:
-        matchLabels:
-          app: main-api
-    ports:
-    - protocol: TCP
-      port: 8080
-
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-dns-egress
+  name: allow-from-api-and-prometheus
   namespace: prod-auth
 spec:
   podSelector:
     matchLabels:
       app: auth-service
   policyTypes:
-  - Egress
-  egress:
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: kube-system
-      podSelector:
-        matchLabels:
-          k8s-app: kube-dns
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
-
+    - Ingress
+  ingress:
+    # Allow main-api -> auth-service
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: prod-api
+          podSelector:
+            matchLabels:
+              app: main-api
+      ports:
+        - protocol: TCP
+          port: 8080
+    # Allow prometheus -> auth-service (scrape /metrics)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app: prometheus
+      ports:
+        - protocol: TCP
+          port: 8080
 ---
+# 3. Deny all Ingress traffic by default in 'prod-image'
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: default-deny-all
+  name: default-deny-ingress
   namespace: prod-image
 spec:
   podSelector: {}
   policyTypes:
-  - Ingress
-  - Egress
-
+    - Ingress
 ---
+# 4. Allow specific Ingress traffic to 'image-service' in 'prod-image'
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-from-api
+  name: allow-from-api-and-prometheus
   namespace: prod-image
 spec:
   podSelector:
     matchLabels:
       app: image-service
   policyTypes:
-  - Ingress
+    - Ingress
   ingress:
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: prod-api
-      podSelector:
-        matchLabels:
-          app: main-api
-    ports:
-    - protocol: TCP
-      port: 5000
-
+    # Allow main-api -> image-service
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: prod-api
+          podSelector:
+            matchLabels:
+              app: main-api
+      ports:
+        - protocol: TCP
+          port: 5000
+    # Allow prometheus -> image-service (scrape /metrics)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app: prometheus
+      ports:
+        - protocol: TCP
+          port: 5000
 ---
+# 5. Allow Ingress traffic to 'main-api' in 'prod-api'
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-dns-egress
-  namespace: prod-image
-spec:
-  podSelector:
-    matchLabels:
-      app: image-service
-  policyTypes:
-  - Egress
-  egress:
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: kube-system
-      podSelector:
-        matchLabels:
-          k8s-app: kube-dns
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
-
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-s3-egress
-  namespace: prod-image
-spec:
-  podSelector:
-    matchLabels:
-      app: image-service
-  policyTypes:
-  - Egress
-  egress:
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          name: prod-storage
-    ports:
-    - protocol: TCP
-      port: 9000
-
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: default-deny-all
-  namespace: prod-api
-spec:
-  podSelector: {}
-  policyTypes:
-  - Ingress
-  - Egress
-
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-ingress
+  name: allow-ingress-and-prometheus
   namespace: prod-api
 spec:
   podSelector:
     matchLabels:
       app: main-api
   policyTypes:
-  - Ingress
+    - Ingress
   ingress:
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: ingress-nginx
-    ports:
-    - protocol: TCP
-      port: 3000
-
+    # Allow ingress-nginx -> main-api
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+    # Allow prometheus -> main-api (scrape /metrics)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app: prometheus
+      ports:
+        - protocol: TCP
+          port: 3000
 ---
+# 6. Define Egress traffic for 'prometheus' in 'kube-system'
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-dns-egress
-  namespace: prod-api
+  name: prometheus-egress
+  namespace: kube-system
 spec:
   podSelector:
     matchLabels:
-      app: main-api
+      app: prometheus
   policyTypes:
-  - Egress
+    - Egress
   egress:
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: kube-system
-      podSelector:
-        matchLabels:
-          k8s-app: kube-dns
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
-
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-to-auth-service
-  namespace: prod-api
-spec:
-  podSelector:
-    matchLabels:
-      app: main-api
-  policyTypes:
-  - Egress
-  egress:
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          name: prod-auth
-      podSelector:
-        matchLabels:
-          app: auth-service
-    ports:
-    - protocol: TCP
-      port: 8080
-
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-to-image-service
-  namespace: prod-api
-spec:
-  podSelector:
-    matchLabels:
-      app: main-api
-  policyTypes:
-  - Egress
-  egress:
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          name: prod-image
-      podSelector:
-        matchLabels:
-          app: image-service
-    ports:
-    - protocol: TCP
-      port: 5000
+    # Allow prometheus -> main-api
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: prod-api
+      ports:
+        - protocol: TCP
+          port: 3000
+    # Allow prometheus -> auth-service
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: prod-auth
+      ports:
+        - protocol: TCP
+          port: 8080
+    # Allow prometheus -> image-service
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: prod-image
+      ports:
+        - protocol: TCP
+          port: 5000
+    # Allow DNS (required for service discovery)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow HTTPS outbound (optional; remove if you want stricter lockdown)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443
+    # Allow Kubernetes API (optional; usually not required for Prometheus scraping)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 6443

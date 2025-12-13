@@ -40,10 +40,6 @@ kubectl apply -f k8s/08-prometheus.yaml
 kubectl apply -f k8s/09-grafana.yaml
 
 Write-Host ""
-Write-Host "Deploying cert-manager resources..." -ForegroundColor Yellow
-kubectl apply -f k8s/10-cert-manager.yaml
-
-Write-Host ""
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host "Deployment Complete!" -ForegroundColor Green
 Write-Host "=========================================" -ForegroundColor Cyan

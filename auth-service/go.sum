@@ -14,8 +14,8 @@ github.com/go-playground/universal-translator v0.18.1 h1:Bcnm0ZwsGyWbxAxy3OeSuJJ
 github.com/go-playground/universal-translator v0.18.1/go.mod h1:xekY+UJKNuX7IYNIyVVVNul9KcgSn3BfOc2i41P5FL=
 github.com/go-playground/validator/v10 v10.15.4 h1:zMXza4EpOSZYNrRjDi1v9/ZvOx2DqQParwzExXWP/0=
 github.com/go-playground/validator/v10 v10.15.4/go.mod h1:9iRLiYgKtaL6NO9bh1JoyKvCKxnqTBQIstPr9EscFI=
-github.com/goccy/go-json v0.10.2 h1:CqyvLINea8JSLymkGhC/PMzDxVmS0AUIpQ8Za4fqS0=
-github.com/goccy/go-json v0.10.2/go.mod h1:6MelG93GURQsLFArtMwlskFQ3I1NsBH+3TP47OnT8=
+github.com/goccy/go-json v0.10.2 h1:CrxCaNVa8gS95P8To7BbD7+ZuuKLT5zG1fMXvud7Cd4=
+github.com/goccy/go-json v0.10.2/go.mod h1:6MelG93GURQsLFArtMwlskFQ3I1NsBH+3TP47OnT8I=
 github.com/golang-jwt/jwt/v5 v5.0.0 h1:1n1XNM9hzLc2zSZVVe7qq3e1DkaWykR5ayJ9p2FFLc=
 github.com/golang-jwt/jwt/v5 v5.0.0/go.mod h1:pqrtFR0X4osieyHYxtcc+xHzfHkNBp42otzj7+I7FE=
 github.com/google/go-cmp v0.5.5 h1:Khx7svrCpmxxyxP9n7j0BH6ya1PTXhnIWuEWw/4SMU=
@@ -23,7 +23,7 @@ github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/FSIyIH7kIChD7OYIE7o0PFad
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65w=
 github.com/json-iterator/go v1.1.12 h1:PV8pesebtbQpGb4gs3J3jZiP00IybuPF00DljYobiY=
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae7abqwEGs2Ovsrg85fL3QUFb2nCKRYU=
-github.com/klauspost/cpuid/v2 v2.2.5 h1:0E5MSMDEoadt7x/wn3f7ml+cafJyr00q293H8rYYd0=
+github.com/klauspost/cpuid/v2 v2.2.5 h1:Lcz8mBdAVJIBVzewtcLocK12l3Y+JytZYpaMropDUws=
 github.com/klauspost/cpuid/v2 v2.2.5/go.mod h1:Lcz8mBVeNEzogKVJZNkU/oJJCp7fNFlo0KwgchzH+c=
 github.com/leodido/go-urn v1.2.4 h1:XlAE/cm/ms7TE/VMVoduSNM+OFy+wpFqAeF6+MWk+8=
 github.com/leodido/go-urn v1.2.4/go.mod h1:7ZrI8mTSeBSHl/UaIrtnY9qKIHMSSyc5r7FRtY5+2E=
@@ -51,7 +51,7 @@ golang.org/x/crypto v0.15.0/go.mod h1:4ChreQoLWfG3xLDer1WdlH5NdpS3/3wBNgo73pu40w
 golang.org/x/net v0.18.0 h1:mIYleuAkSbTurvxPquCwVQRWLEQorXYgxKLWc+L3VQ=
 golang.org/x/net v0.18.0/go.mod h1:/czyP5RqHkOG69IqES8bBnqbnWcc63/25dp1r5s6vQ=
 golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab/go.mod h1:oPkhp1MJrh7nUepCax/Tc5uE+9J6qLDucPRLcifQAY=
-golang.org/x/sys v0.14.0 h1:Vz3 Complv5/rvt6AkQyVNKVkgm+RQB833qY2Z0obKc=
+golang.org/x/sys v0.14.0 h1:Vz3Complv5/rvt6AkQyVNKVkgm+RQB833qY2Z0obKc=
 golang.org/x/sys v0.14.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTpy5+I=
 golang.org/x/text v0.13.0 h1:ablQoSUd0tRdKxZewP80B+BaqeKJuVhuRxj/dkcUlQ=
 golang.org/x/text v0.13.0/go.mod h1:e0JZCRMlr/+VU8PEXzwKNDfE7hp92YgNuKfJbX5dQU=
