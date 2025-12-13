@@ -61,35 +61,30 @@ data:
         target_label: __metrics_path__
         replacement: /api/v1/nodes/$1/proxy/metrics/cadvisor
 
-    # ✅ RECOMMENDED: scrape SERVICES (stable DNS + plays nicer with NetworkPolicies)
-    # Add these annotations on each Service you want scraped:
-    #   prometheus.io/scrape: "true"
-    #   prometheus.io/port:   "<service port number>"   (example main-api: 80)
-    #   prometheus.io/path:   "/metrics"
-    - job_name: 'kubernetes-services'
+    - job_name: 'kubernetes-pods'
       kubernetes_sd_configs:
-      - role: service
+      - role: pod
       relabel_configs:
-      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
         action: keep
         regex: 'true'
-      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
         action: replace
         target_label: __metrics_path__
         regex: (.+)
-      - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
         action: replace
         regex: ([^:]+)(?::\d+)?;(\d+)
         replacement: $1:$2
         target_label: __address__
       - action: labelmap
-        regex: __meta_kubernetes_service_label_(.+)
+        regex: __meta_kubernetes_pod_label_(.+)
       - source_labels: [__meta_kubernetes_namespace]
         action: replace
         target_label: kubernetes_namespace
-      - source_labels: [__meta_kubernetes_service_name]
+      - source_labels: [__meta_kubernetes_pod_name]
         action: replace
-        target_label: kubernetes_service_name
+        target_label: kubernetes_pod_name
 
 ---
 apiVersion: apps/v1
@@ -111,7 +106,6 @@ spec:
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/port: '9090'
-        prometheus.io/path: '/metrics'
     spec:
       serviceAccountName: prometheus
       containers:
@@ -120,7 +114,6 @@ spec:
         args:
         - '--config.file=/etc/prometheus/prometheus.yml'
         - '--storage.tsdb.path=/prometheus'
-        - '--web.enable-lifecycle'
         ports:
         - containerPort: 9090
           name: http
